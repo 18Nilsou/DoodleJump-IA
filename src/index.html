@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/index.css">
+    <script src="model.js"></script>
+    <script src="view.js"></script>
+    <script src="controller.js"></script>
+    <title>Mouvement</title>
+</head>
+<body>
+    <p id="score">Score: 0</p>
+    <canvas id="my_canvas" width="250" height="400" class="centered-canvas"></canvas>
+
+    <div id="game-over" class="game-over-screen">
+        <h1>Game Over</h1>
+        <p id="final-score"></p>
+        <button id="restart-btn">Rejouer</button>
+    </div>
+
+    <div id="success-banner" class="success-banner">
+        <img src="../assets/finish-banner.png" alt="Success Banner">
+    </div>
+
+    <script>
+        const app = new Controller(new Model(), new View());
+        app.Update();
+    </script>
+</body>
+</html>
