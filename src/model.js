@@ -12,6 +12,9 @@ class Tile {
             case "move":
                 this.image.src = "../assets/tuilequibouge.png";
                 break;
+            case "fragile":
+                this.image.src = "../assets/tuilequitombe.png";
+                break;
             default:
                 this.image.src = "../assets/tuile.png";
                 break;
@@ -34,10 +37,11 @@ class Tile {
 }
 
 class Model {
+    
     static GRAVITY = 20;
     static JUMP_FORCE = 500;
     static SPEED = 200;
-    static type = ["basic", "move", "fragile"]
+    static TYPE = ["basic", "move", "fragile"]
 
     constructor() {
         this.tiles = [];
@@ -106,15 +110,24 @@ class Model {
             const highestTileY = this.tiles.reduce((min, tile) => Math.min(min, tile.y), Infinity);
             let x = Math.random() * (canvas.width - this._widthCell);
             let y = highestTileY - 70; // Espacement au-dessus de la tuile la plus haute
-            let type = "basic";
+            let type = this.getType();
             this.addTile(x, y, type);
         }
     }
 
-    getType(){
-        let x = Math.random() * (0 - this.score);
-        x = x%3
-
+    getType() {
+        let scoreRatio = this.score / 10000; // Normalise entre 0 et 1
+    
+        // Probabilités ajustées en fonction du score
+        let prob1 = Math.max(0.5 - scoreRatio * 0.5, 0);  // Diminue avec le score
+        let prob2 = 0.3 + scoreRatio * 0.3;               // Augmente avec le score
+        let prob3 = 0.2 + scoreRatio * 0.2;               // Augmente aussi
+    
+        let rand = Math.random(); // Nombre entre 0 et 1
+    
+        if (rand < prob1) return Model.TYPE[0];  // Plus probable au début
+        if (rand < prob1 + prob2) return Model.TYPE[1]; // Devient plus fréquent avec le score
+        return Model.TYPE[2];  // Plus fréquent avec un score élevé
     }
 
     Move(fps, canvas) {
