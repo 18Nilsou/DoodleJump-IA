@@ -110,30 +110,32 @@ class Model {
         this.tiles.push(tile);
     }
 
-    generateNewTiles(canvas) {
-        if (this.tiles.length < 10) {
-            const highestTileY = this.tiles.reduce((min, tile) => Math.min(min, tile.y), Infinity);
-            let x = Math.random() * (canvas.width - this._widthCell);
-            let y = highestTileY - 70; // Espacement au-dessus de la tuile la plus haute
-            let type = this.getType();
-            this.addTile(x, y, type);
+    getType(score) {
+        const rand = Math.random(); // Génère un nombre entre 0 et 1
+    
+        if (score < 3000) {
+            return rand < 0.9 ? Model.TYPE[0] : (rand < 0.95 ? Model.TYPE[1] : Model.TYPE[2]); // 90% type[0], 5% type[1], 5% type[2]
+        } else if (score < 5000) {
+            return rand < 0.6 ? Model.TYPE[0] : (rand < 0.8 ? Model.TYPE[1] : Model.TYPE[2]); // 60% type[0], 20% type[1], 20% type[2]
+        } else if (score < 7000) {
+            return rand < 0.33 ? Model.TYPE[0] : (rand < 0.66 ? Model.TYPE[1] : Model.TYPE[2]); // 33% pour chaque type
+        } else {
+            return rand < 0.05 ? Model.TYPE[0] : (rand < 0.5 ? Model.TYPE[1] : Model.TYPE[2]); // 5% type[0], 45% type[1], 50% type[2]
         }
     }
-
-    getType() {
-        let scoreRatio = this.score / 10000; // Normalise entre 0 et 1
     
-        // Probabilités ajustées en fonction du score
-        let prob1 = Math.max(0.5 - scoreRatio * 0.5, 0);  // Diminue avec le score
-        let prob2 = 0.3 + scoreRatio * 0.3;               // Augmente avec le score
-        let prob3 = 0.2 + scoreRatio * 0.2;               // Augmente aussi
+    generateNewTiles(canvas, score) {
+        // Diminuer le nombre de tuiles au fur et à mesure que le score augmente
+        let maxTiles = Math.max(1, 10 - Math.floor(score / 1000)); // Ex: 10 tuiles au début, 1 à la fin
     
-        let rand = Math.random(); // Nombre entre 0 et 1
-    
-        if (rand < prob1) return Model.TYPE[0];  // Plus probable au début
-        if (rand < prob1 + prob2) return Model.TYPE[1]; // Devient plus fréquent avec le score
-        return Model.TYPE[2];  // Plus fréquent avec un score élevé
-    }
+        if (this.tiles.length < maxTiles + 10) {
+            const highestTileY = this.tiles.reduce((min, tile) => Math.min(min, tile.y), Infinity);
+            let x = Math.random() * (canvas.width - this._widthCell);
+            let y = highestTileY - (30 + Math.random() * 70); // Espacement aléatoire entre -30 et -100
+            let type = this.getType(score);
+            this.addTile(x, y, type);
+        }
+    }    
 
     Move(fps, canvas) {
         this._gravitySpeed += Model.GRAVITY;
@@ -141,7 +143,7 @@ class Model {
 
         // Gérer la gravité et le scrolling des plateformes
         if (this._position.y <= canvas.height / 2 && this._gravitySpeed < 0) {
-            this.score += Math.abs(distance)*10;   // To have a positive score
+            this.score += Math.abs(distance);   // To have a positive score
             this.tiles.forEach((tile) => (tile.y -= distance));
         } else {
             this._position.y += distance;
@@ -173,7 +175,7 @@ class Model {
         }
 
         this.removeOldTiles(canvas);
-        this.generateNewTiles(canvas);
+        this.generateNewTiles(canvas, this.score);
         this.b_Display(this._position, this.tiles, this.score);
     }
 
