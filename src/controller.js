@@ -15,7 +15,7 @@ class Controller {
         this.Update();
     }
 
-    Display(position, tiles, score ) {
+    Display(position, tiles, score) {
         this._view.Display(position, tiles, score);
     }
 

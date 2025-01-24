@@ -1,4 +1,5 @@
 class View {
+    
     constructor() {
         this._widthCell = 50;
         this._heightCell = 12;

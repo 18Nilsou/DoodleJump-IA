@@ -1,5 +1,7 @@
 class Tile {
+
     constructor(x, y, width, height, type) {
+        
         this.x = x;
         this.type = type
         this.direction = 1
@@ -7,13 +9,14 @@ class Tile {
         this.width = width;
         this.height = height;
         this.image = new Image();
-        console.log(this.type);
+
         switch (type) {
             case "move":
                 this.image.src = "../assets/tuilequibouge.png";
                 break;
             case "fragile":
                 this.image.src = "../assets/tuilequitombe.png";
+                this.touch = false;
                 break;
             default:
                 this.image.src = "../assets/tuile.png";
@@ -34,6 +37,7 @@ class Tile {
     move(speed){
         this.x += this.direction * speed;
     }
+
 }
 
 class Model {
@@ -61,6 +65,7 @@ class Model {
                 "basic"
             );
         }
+        this.addTile(this._position.x, this._position.y + 70, Model.TYPE[0])
     }
 
     get position() {
@@ -136,17 +141,25 @@ class Model {
 
         // Gérer la gravité et le scrolling des plateformes
         if (this._position.y <= canvas.height / 2 && this._gravitySpeed < 0) {
-            this.score += Math.abs(distance) * 5;   // To have a positive score
+            this.score += Math.abs(distance)*10;   // To have a positive score
             this.tiles.forEach((tile) => (tile.y -= distance));
         } else {
             this._position.y += distance;
         }
-        this.tiles.forEach(function(tuile){
-            if (tuile.type === "move"){
-                tuile.checkCollisions(canvas);
-                tuile.move((Model.SPEED / fps));
+        
+        this.tiles.forEach(function(tile){
+            if (tile.type === "move"){
+                tile.checkCollisions(canvas);
+                tile.move((Model.SPEED / fps));
+            }
+            if(tile.type === "fragile"){
+
+                if (tile.touch === true){
+                    tile.y += distance * 1.25 + 10
+                }
             }
         });
+
         // Mouvement horizontal
         this._position.x += this._direction * (Model.SPEED / fps);
 
@@ -179,6 +192,9 @@ class Model {
             ) {
                 this._position.y = tile.y - 40; // Ajuster la position du joueur
                 this._Jump();
+                if ( tile.type == "fragile"){
+                    tile.touch = true;
+                }
             }
         }
     }
