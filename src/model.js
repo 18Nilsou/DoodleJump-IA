@@ -89,10 +89,10 @@ class Model {
     }
 
     checkBorder(canvas) {
-        if (this.position.x + 40 >= canvas.width && this.direction === 1) {
+        if (this.position.x - 40 >= canvas.width && this.direction === 1) {
             this.position.x = 0;
         }
-        if (this.position.x <= 0 && this.direction === -1) {
+        if (this.position.x + 40 <= 0 && this.direction === -1) {
             this.position.x = canvas.width - 40;
         }
     }
