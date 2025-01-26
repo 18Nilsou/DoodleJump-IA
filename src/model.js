@@ -1,7 +1,6 @@
 class Tile {
 
     constructor(x, y, width, height, type) {
-        
         this.x = x;
         this.type = type
         this.direction = 1
@@ -18,30 +17,34 @@ class Tile {
                 this.image.src = "../assets/tuilequitombe.png";
                 this.touch = false;
                 break;
+            case "finish":
+                this.image.src = "../assets/finish-tile.png";
+                this.touch = false;
+                break;
             default:
                 this.image.src = "../assets/tuile.png";
                 break;
         }
     }
-    
+
     draw(ctx) {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
 
     checkCollisions(canvas) {
-        if(this.x <= 0 || this.x + 50 >= canvas.width){
+        if (this.x <= 0 || this.x + 50 >= canvas.width) {
             this.direction = - this.direction;
         }
     }
 
-    move(speed){
+    move(speed) {
         this.x += this.direction * speed;
     }
 
 }
 
 class Model {
-    
+
     static GRAVITY = 20;
     static JUMP_FORCE = 500;
     static SPEED = 200;
@@ -56,6 +59,8 @@ class Model {
 
         this._widthCell = 50; // Largeur des plateformes
         this._heightCell = 12; // Hauteur des plateformes
+
+        this._finishLineGenerated = false;
 
         // Ajouter des plateformes initiales
         for (let i = 0; i < 6; i++) {
@@ -112,7 +117,7 @@ class Model {
 
     getType(score) {
         const rand = Math.random(); // Génère un nombre entre 0 et 1
-    
+
         if (score < 3000) {
             return rand < 0.9 ? Model.TYPE[0] : (rand < 0.95 ? Model.TYPE[1] : Model.TYPE[2]); // 90% type[0], 5% type[1], 5% type[2]
         } else if (score < 5000) {
@@ -123,11 +128,11 @@ class Model {
             return rand < 0.05 ? Model.TYPE[0] : (rand < 0.5 ? Model.TYPE[1] : Model.TYPE[2]); // 5% type[0], 45% type[1], 50% type[2]
         }
     }
-    
+
     generateNewTiles(canvas, score) {
         // Diminuer le nombre de tuiles au fur et à mesure que le score augmente
         let maxTiles = Math.max(1, 10 - Math.floor(score / 1000)); // Ex: 10 tuiles au début, 1 à la fin
-    
+
         if (this.tiles.length < maxTiles + 10) {
             const highestTileY = this.tiles.reduce((min, tile) => Math.min(min, tile.y), Infinity);
             let x = Math.random() * (canvas.width - this._widthCell);
@@ -135,9 +140,29 @@ class Model {
             let type = this.getType(score);
             this.addTile(x, y, type);
         }
-    }    
+    }
+
+    generateFinishLine(canvas) {
+        const yPosition = -(canvas.height / 6); // Position at the top of the canvas
+
+        const tile = new Tile(0, yPosition, canvas.width, canvas.height / 6, "finish");
+        this.tiles.push(tile);
+    }
 
     Move(fps, canvas) {
+        if (this.score >= 10000) { // Stop the game
+            return;
+        }
+        if (this.score >= 9750 && !this._finishLineGenerated) { // Generate finish line and remove tiles above it
+            this.generateFinishLine(canvas);
+            this._finishLineGenerated = true;
+
+            const finishLineY = this.tiles.find(tile => tile.type === "finish").y;
+            this.tiles = this.tiles.filter(tile =>
+                tile.type === "finish" || tile.y >= (finishLineY + 50)
+            );
+        }
+
         this._gravitySpeed += Model.GRAVITY;
         let distance = this._gravitySpeed / fps;
 
@@ -148,15 +173,15 @@ class Model {
         } else {
             this._position.y += distance;
         }
-        
-        this.tiles.forEach(function(tile){
-            if (tile.type === "move"){
+
+        this.tiles.forEach(function (tile) {
+            if (tile.type === "move") {
                 tile.checkCollisions(canvas);
                 tile.move((Model.SPEED / fps));
             }
-            if(tile.type === "fragile"){
+            if (tile.type === "fragile") {
 
-                if (tile.touch === true){
+                if (tile.touch === true) {
                     tile.y += distance * 1.25 + 10
                 }
             }
@@ -175,7 +200,11 @@ class Model {
         }
 
         this.removeOldTiles(canvas);
-        this.generateNewTiles(canvas, this.score);
+
+        if (!this._finishLineGenerated) {   // Generate new tiles until the finish line
+            this.generateNewTiles(canvas, this.score);
+        }
+
         this.b_Display(this._position, this.tiles, this.score);
     }
 
@@ -194,7 +223,7 @@ class Model {
             ) {
                 this._position.y = tile.y - 40; // Ajuster la position du joueur
                 this._Jump();
-                if ( tile.type == "fragile"){
+                if (tile.type == "fragile") {
                     tile.touch = true;
                 }
             }

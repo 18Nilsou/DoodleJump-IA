@@ -1,5 +1,5 @@
 class View {
-    
+
     constructor() {
         this._widthCell = 50;
         this._heightCell = 12;
@@ -7,11 +7,10 @@ class View {
         this.ctx = this._canvas.getContext('2d');
         this._hold_right = false;
         this._hold_left = false;
-        
+
         this.player = { x: 50, y: 50 }; // Position initiale du joueur
         this.score = 0;
         this.scoreToTriggerBanner = 10000;
-        this.bannerShown = false;
         this.Events();
     }
 
@@ -77,40 +76,33 @@ class View {
         let scoreDisplay = document.getElementById('score');
         scoreDisplay.textContent = `Score: ${Math.floor(this.score)}`;
 
-        if (!this.bannerShown && Math.floor(this.score) >= this.scoreToTriggerBanner) {
-            const bannerPositionX = this._canvas.width / 2 - 150;
-
-            this.ShowSuccessBanner(bannerPositionX);
+        if (Math.floor(this.score) >= 10000) {
+            this.WinGame(Math.floor(this.score));
         }
-    }
-
-    ShowSuccessBanner(positionX) {
-        const banner = document.getElementById('success-banner');
-        const bannerImage = banner.querySelector('img');
-        
-        // Affichage de la banderole progressivement
-        if (banner.style.display === 'none') {
-            banner.style.display = 'block';
-            banner.style.transition = 'left 0.5s ease';  // Transition pour un affichage progressif
-            banner.style.left = `${positionX}px`;  // Placer la bannière à la position calculée
-        }
-        
-        // S'assurer que la bannière ne s'affiche qu'une seule fois
-        this.bannerShown = true;
     }
 
     GameOver(score) {
         const gameOverScreen = document.getElementById('game-over');
         const finalScoreDisplay = document.getElementById('final-score');
         const restartButton = document.getElementById('restart-btn');
-    
-        // Afficher l'écran de Game Over
+
         gameOverScreen.style.display = 'block';
-    
-        // Afficher le score final
         finalScoreDisplay.textContent = `Votre score final est : ${Math.floor(score)}`;
-    
-        // Ajouter un événement pour redémarrer le jeu
+
+        restartButton.addEventListener('click', () => {
+            location.reload(); // Recharger la page pour recommencer
+        });
+    }
+
+
+    WinGame(score) {
+        const winScreen = document.getElementById('win-screen');
+        const winScoreDisplay = document.getElementById('win-score');
+        const restartButton = document.getElementById('restart-win-btn');
+
+        winScreen.style.display = 'block';
+        winScoreDisplay.textContent = `Votre score final est : ${score}`;
+
         restartButton.addEventListener('click', () => {
             location.reload(); // Recharger la page pour recommencer
         });
