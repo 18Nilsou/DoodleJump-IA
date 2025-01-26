@@ -11,6 +11,10 @@ class View {
         this.player = { x: 50, y: 50 }; // Position initiale du joueur
         this.score = 0;
         this.scoreToTriggerBanner = 10000;
+
+        this.DOODLE_IMAGE = new Image();
+        this.DOODLE_IMAGE.src = '../assets/lik-left@2x.png';    // Default : left image
+
         this.Events();
     }
 
@@ -23,10 +27,12 @@ class View {
             if (evt.key === 'ArrowLeft' || evt.key === 'ArrowRight') {
                 switch (evt.key) {
                     case 'ArrowLeft': // Move left.
+                        this.DOODLE_IMAGE.src = '../assets/lik-left@2x.png';
                         this._hold_left = true;
                         this.b_SetDirection(-1);
                         break;
                     case 'ArrowRight': // Move right.
+                        this.DOODLE_IMAGE.src = '../assets/lik-right@2x.png';
                         this._hold_right = true;
                         this.b_SetDirection(1);
                         break;
@@ -69,9 +75,7 @@ class View {
         });
 
         // Doodle
-        const DOODLE_IMAGE = new Image();
-        DOODLE_IMAGE.src = '../assets/lik-left@2x.png';
-        this.ctx.drawImage(DOODLE_IMAGE, this.player.x, this.player.y, 40, 40);
+        this.ctx.drawImage(this.DOODLE_IMAGE, this.player.x, this.player.y, 40, 40);
 
         let scoreDisplay = document.getElementById('score');
         scoreDisplay.textContent = `Score: ${Math.floor(this.score)}`;
