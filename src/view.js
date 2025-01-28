@@ -1,15 +1,17 @@
 class View {
 
-    constructor(gameType) {
-        this._widthCell = 50;
-        this._heightCell = 12;
-        this._canvas = document.getElementById('my_canvas');
+    constructor(gameType, id) {
+        this._id = id;
+        this._canvas = document.getElementById(`canvas-${this._id}`);
+        this._widthCell = this._canvas.width/5;
+        this._heightCell = this._widthCell/4;
+        
         this.ctx = this._canvas.getContext('2d');
         this._hold_right = false;
         this._hold_left = false;
         this.gameType = gameType;
 
-        this.player = { x: 50, y: 50 }; // Position initiale du joueur
+        this.player = { x: this._canvas.width/5, y: this._canvas.width/5 }; // Position initiale du joueur
         this.score = 0;
         this.scoreToTriggerBanner = 10000;
 
@@ -25,7 +27,7 @@ class View {
 
     Events() {
         if("player" !== this.gameType) { return; }
-        
+
         document.addEventListener('keydown', (evt) => {
             if (evt.key === 'ArrowLeft' || evt.key === 'ArrowRight') {
                 switch (evt.key) {
@@ -80,10 +82,10 @@ class View {
         // Doodle
         this.ctx.drawImage(this.DOODLE_IMAGE, this.player.x, this.player.y, 40, 40);
 
-        let scoreDisplay = document.getElementById('score');
+        let scoreDisplay = document.getElementById(`score-${this._id}`);
         scoreDisplay.textContent = `Score: ${Math.floor(this.score)}`;
 
-        let isAliveDisplay = document.getElementById('isAlive');
+        let isAliveDisplay = document.getElementById(`isAlive-${this._id}`);
         isAliveDisplay.textContent = `isAlive: ${isAlive}`;
 
         if (Math.floor(this.score) >= 10000 && "player" === this.gameType) {
@@ -96,14 +98,15 @@ class View {
     }
 
     Vector(nearestTiles) {
-        nearestTiles.forEach(tile => {
+        nearestTiles.forEach(t => {
+            const tile = t.tile;
             // Get the center of the tile
             const tileCenterX = tile.x + tile.width / 2;
             const tileCenterY = tile.y + tile.height / 2;
 
             // Get the center of the doodle (player)
-            const doodleCenterX = this.player.x + 20;
-            const doodleCenterY = this.player.y + 20;
+            const doodleCenterX = this.player.x;
+            const doodleCenterY = this.player.y;
 
             this.ctx.beginPath();
             this.ctx.moveTo(doodleCenterX, doodleCenterY);
