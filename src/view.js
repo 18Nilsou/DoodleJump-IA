@@ -58,7 +58,7 @@ class View {
         });
     }
 
-    Display(position, tiles, score, type, nearestTiles) {
+    Display(position, tiles, score, type, nearestTiles, isAlive) {
         this.player.x = position.x;
         this.player.y = position.y;
         this.score = score;
@@ -80,11 +80,14 @@ class View {
         let scoreDisplay = document.getElementById('score');
         scoreDisplay.textContent = `Score: ${Math.floor(this.score)}`;
 
+        let isAliveDisplay = document.getElementById('isAlive');
+        isAliveDisplay.textContent = `isAlive: ${isAlive}`;
+
         if (Math.floor(this.score) >= 10000 && "player" === type) {
             this.WinGame(Math.floor(this.score));
         }
 
-        if ("ai" === type && nearestTiles !== null) {
+        if ("ai" === type && nearestTiles != null) {
             this.Vector(nearestTiles);
         }
     }
@@ -117,7 +120,7 @@ class View {
         finalScoreDisplay.textContent = `Votre score final est : ${Math.floor(score)}`;
 
         restartButton.addEventListener('click', () => {
-            location.reload(); // Recharger la page pour recommencer
+            location.reload(); // Recharger la page pour commencer une nouvelle partie
         });
     }
 

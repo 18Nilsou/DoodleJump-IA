@@ -49,14 +49,18 @@ class Model {
     static JUMP_FORCE = 500;
     static SPEED = 200;
     static TYPE = ["basic", "move", "fragile"]
+    static TIMEOUT_SECONDS = 10000; // Stop the game when the ai do not move for 10s
 
-    constructor() {
+    constructor(gameType) {
         this.tiles = [];
         this._direction = 0;
         this._gravitySpeed = 0;
         this._position = { x: 100, y: 300 }; // Position de départ
         this.score = 0;
-
+        this.gameType = gameType;
+        this.timeoutID = undefined;
+        this.isAlive = true;
+        
         this._widthCell = 50; // Largeur des plateformes
         this._heightCell = 12; // Hauteur des plateformes
 
@@ -71,6 +75,8 @@ class Model {
             );
         }
         this.addTile(this._position.x, this._position.y + 70, Model.TYPE[0])
+
+        this._resetTimeout();
     }
 
     get position() {
@@ -110,7 +116,7 @@ class Model {
         this.tiles = this.tiles.filter((tile) => tile.y < canvas.height);
     }
 
-    addTile(x, y, type) {
+    addTile(x, y, type, gameType) {
         const tile = new Tile(x, y, this._widthCell, this._heightCell, type);
         this.tiles.push(tile);
     }
@@ -149,10 +155,17 @@ class Model {
         this.tiles.push(tile);
     }
 
-    Move(fps, canvas, type) {
-        if (this.score >= 10000) { // Stop the game
+    Move(fps, canvas) {
+        if(this.score >= 10000) {
+            this.isAlive = false;
             return;
         }
+
+        if (!this.isAlive) {
+            this.b_Display(this._position, this.tiles, this.score, null, this.isAlive);    
+            return;
+        }
+
         if (this.score >= 9750 && !this._finishLineGenerated) { // Generate finish line and remove tiles above it
             this.generateFinishLine(canvas);
             this._finishLineGenerated = true;
@@ -169,6 +182,7 @@ class Model {
         // Gérer la gravité et le scrolling des plateformes
         if (this._position.y <= canvas.height / 2 && this._gravitySpeed < 0) {
             this.score += Math.abs(distance);   // To have a positive score
+            this._resetTimeout(); // Reset the timeout when the doodle get score
             this.tiles.forEach((tile) => (tile.y -= distance));
         } else {
             this._position.y += distance;
@@ -195,6 +209,7 @@ class Model {
         this.checkBorder(canvas);
 
         if (this.checkGameOver(canvas)) {
+            this.isAlive = false;
             this.b_GameOver();
             return;
         }
@@ -206,11 +221,27 @@ class Model {
         }
 
         let nearestTiles = null;
-        if ("ai" === type) {
+        if ("ai" === this.gameType) {
             nearestTiles = this._getNearestTiles(canvas);
         }
 
-        this.b_Display(this._position, this.tiles, this.score, nearestTiles);
+        this.b_Display(this._position, this.tiles, this.score, nearestTiles, this.isAlive);
+    }
+
+    _resetTimeout() {
+        if("ai" !== this.gameType) { return; }
+        
+        if (typeof this.timeoutID === "number") {
+            clearTimeout(this.timeoutID);
+        }
+    
+        this.timeoutID = setTimeout(
+            () => {
+                console.log("Game Over due to timeout");
+                this.isAlive = false;
+            },
+            Model.TIMEOUT_SECONDS
+        );    
     }
 
     _getNearestTiles() {
@@ -223,14 +254,14 @@ class Model {
                 distance: Math.sqrt(dx * dx + dy * dy),
             };
         });
-        
+
         // Sort the tiles lists with their distance
         distances.sort((a, b) => a.distance - b.distance);
-    
+
         // Get the 4 nearest tiles
         return distances.slice(0, 4).map((item) => item.tile);
     }
-    
+
 
     _Jump() {
         this._gravitySpeed = -Model.JUMP_FORCE;
