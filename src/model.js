@@ -1,6 +1,72 @@
+class Darwin{
+
+    constructor(){
+        this.nbrAI = 55;
+        this.population = [];
+        this.generation = 0;
+        this.bestScore = [];
+        this.averageScore = [];
+    }
+
+    evolve(layerNeural){
+
+        this.bestScore.push(this.population.sort((a, b) => a.score - b.score)[0].score);
+        this.averageScore.push(this.population.reduce((acc, ai) => acc + ai.score, 0) / this.nbrAI);
+
+        //take the best 10% of the population and 5% ramdom (in the best 50%) and make them reproduce
+        let parents = this.population.sort((a, b) => a.score - b.score).slice(0, 8);
+        let randomAI = this.population.sort((a, b) => a.score - b.score).slice(8, 26);
+        for (let i = parents.length; i < this.nbrAI; ++i) {
+            parents.push(randomAI[Math.floor(Math.random() * randomAI.length)]);
+        }
+        let newPopulation = [];
+
+        //everyone reproduce with everyone
+        for (let i = 0; i < parents.length; ++i) {
+            for (let j = 0; j < parents.length; ++j) {
+                let child = new AI(layerNeural);
+                for(let k = 0; k < child.matrix.length; ++k){
+                    for(let z = 0; z < child.matrix[k].length; ++z){
+                        //      node child = (      parent1 node      *   parent1 score  +      parent2 node       * parent2 score   )/ (parent1 score   + parent2 score)
+                        child.matrix[k][z] = (parents[i].matrix[k][z] * parents[i].score + parents[j].matrix[k][z] * parents[j].score)/(parents[i].score + parents[j].score);
+                        
+                        //mutation
+                        if(Math.random() < 0.1){
+                            child.matrix[k][z] *= (Math.random() * 0.4) - 0.2;
+                        }
+                    }
+                newPopulation.push(child);
+                }
+            }
+        }
+    }
+
+    life(){
+        for (let i = 0; i < this.nbrAI; ++i) {
+            
+            let model = new Model("ai");
+            model.ai = this.population[i];
+            
+            model.BindGameOver(() => {
+                this.population[i].score = model.score;
+            });
+            
+            model.BindDisplay((position, tiles, score, nearestTiles, isAlive) => {
+                if (!isAlive) {
+                    model = null;
+                }
+            });
+
+            this.population[i] = model.ai;
+        }
+    }
+
+}
+
 class AI {
 
     constructor(layerNeural){
+        this.score = 0;
         //layerNeural should start with 6 and end with 3
         this.layerNeural = layerNeural; // array with the number of neurons per layer, e.g., this.layerNeural[0] = 5, this.layerNeural[1] = 3 -> the first layer will have 5 neurons and the second 3
         this.matrix = this.setDefaultMatrix(); //matrix[n] matrice pour la n eme couche 
@@ -223,13 +289,14 @@ class Model {
     }
 
     Move(fps, canvas) {
+        
         if(this.score >= 10000) {
             this.isAlive = false;
-            return;
         }
 
         if (!this.isAlive) {
-            this.b_Display(this._position, this.tiles, this.score, null, this.isAlive);    
+            this.b_Display(this._position, this.tiles, this.score, null, this.isAlive);
+            this.ai.score = this.score;    
             return;
         }
         
@@ -330,7 +397,7 @@ class Model {
         // Get the 4 nearest tiles
         return distances.slice(0, 4);
     }
-    
+
     _Jump() {
         this._gravitySpeed = -Model.JUMP_FORCE;
     }
