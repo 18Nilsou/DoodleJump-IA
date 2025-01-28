@@ -39,7 +39,6 @@ class AI {
                 newVector[j] += vector[j] * matrix[j][i];
             }
         }
-        console.log(newVector);
         return  newVector;
     }
 
@@ -367,6 +366,5 @@ class Model {
         }else if(direction === 0){
             this.direction = 0;
         }
-
     }
 }

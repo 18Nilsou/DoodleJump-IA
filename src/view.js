@@ -11,7 +11,7 @@ class View {
         this._hold_left = false;
         this.gameType = gameType;
 
-        this.player = { x: this._canvas.width/5, y: this._canvas.width/5 }; // Position initiale du joueur
+        this.player = { x: this._canvas.width/6, y: this._canvas.height/5 }; // Position initiale du joueur
         this.score = 0;
         this.scoreToTriggerBanner = 10000;
 
@@ -101,12 +101,12 @@ class View {
         nearestTiles.forEach(t => {
             const tile = t.tile;
             // Get the center of the tile
-            const tileCenterX = tile.x + tile.width / 2;
-            const tileCenterY = tile.y + tile.height / 2;
+            const tileCenterX = tile.x + (tile.width / 2);
+            const tileCenterY = tile.y + (tile.height / 2);
 
             // Get the center of the doodle (player)
-            const doodleCenterX = this.player.x;
-            const doodleCenterY = this.player.y;
+            const doodleCenterX = this.player.x + (this._canvas.width / 12);
+            const doodleCenterY = this.player.y + (this._canvas.width / 10);
 
             this.ctx.beginPath();
             this.ctx.moveTo(doodleCenterX, doodleCenterY);
