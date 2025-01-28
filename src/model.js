@@ -1,3 +1,69 @@
+class AI {
+
+    constructor(layerNeural){
+        //layerNeural should start with 6 and end with 3
+        this.layerNeural = layerNeural; // array with the number of neurons per layer, e.g., this.layerNeural[0] = 5, this.layerNeural[1] = 3 -> the first layer will have 5 neurons and the second 3
+        this.matrix = this.setDefaultMatrix(); //matrix[n] matrice pour la n eme couche 
+
+    }
+
+    setDefaultMatrix(){
+        let listMatrix = [];
+        for (let i = 0; i < this.layerNeural.length-1; ++i) {
+            let matrix = []
+            for (let j = 0; j < this.layerNeural[i+1]; ++j) {
+                let line = [];
+                for (let z = 0; z < this.layerNeural[i]; ++z) {
+                    line[z] = Math.random();
+                }
+                matrix[j] = line;
+            }
+            listMatrix[i] = matrix;
+        }
+        return listMatrix;
+    }
+
+    activateFunction(biasVector){
+        for (let j = 0; j < biasVector.length; ++j) {
+            biasVector[j] = biasVector[j] > 0 ? biasVector[j] : 0;
+        } 
+        return biasVector;
+    }
+
+    forward(vector, matrix, nbrNeural){
+
+        let newVector = new Array(nbrNeural).fill(0);
+       
+        for (let j = 0; j < nbrNeural; ++j) {
+            for (let i = 0; i < vector.length; ++i) {
+                newVector[j] += vector[j] * matrix[j][i];
+            }
+        }
+        console.log(newVector);
+        return  newVector;
+    }
+
+    learn(vector){
+        for (let i = 0; i < this.layerNeural.length - 1; ++i) {
+            vector = this.forward(vector, this.matrix[i], this.layerNeural[i+1]);
+            vector = this.activateFunction(vector);
+        }
+        return vector;
+    }
+
+    // Si 0 = bouge pas / 1 = gauche / 2 = droite
+    choose(vector){
+        let index = 0;
+        for (let i = 0; i < vector.length; ++i) {
+            if(vector[index] < vector[i]){
+                index = i;
+            }
+        }
+        return index;
+    }
+    
+}
+
 class Tile {
 
     constructor(x, y, width, height, type) {
@@ -60,7 +126,9 @@ class Model {
         this.gameType = gameType;
         this.timeoutID = undefined;
         this.isAlive = true;
-        
+
+        this.ai = new AI([6,4,3]);
+
         this._widthCell = 50; // Largeur des plateformes
         this._heightCell = 12; // Hauteur des plateformes
 
@@ -165,6 +233,8 @@ class Model {
             this.b_Display(this._position, this.tiles, this.score, null, this.isAlive);    
             return;
         }
+        
+        this.moveAI();
 
         if (this.score >= 9750 && !this._finishLineGenerated) { // Generate finish line and remove tiles above it
             this.generateFinishLine(canvas);
@@ -259,10 +329,9 @@ class Model {
         distances.sort((a, b) => a.distance - b.distance);
 
         // Get the 4 nearest tiles
-        return distances.slice(0, 4).map((item) => item.tile);
+        return distances.slice(0, 4);
     }
-
-
+    
     _Jump() {
         this._gravitySpeed = -Model.JUMP_FORCE;
     }
@@ -283,5 +352,21 @@ class Model {
                 }
             }
         }
+    }
+
+    moveAI(){
+
+        let nearestTiles = this._getNearestTiles()
+        let vector = this.ai.learn([this.position.x, this.position.y, nearestTiles[0].distance, nearestTiles[1].distance, nearestTiles[2].distance, nearestTiles[3].distance ]);
+        let direction = this.ai.choose(vector);
+        
+        if (direction === 1) {
+            this.direction = -1;    
+        }else if(direction === 2){
+            this.direction = 1;
+        }else if(direction === 0){
+            this.direction = 0;
+        }
+
     }
 }
