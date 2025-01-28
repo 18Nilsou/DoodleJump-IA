@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,9 +10,18 @@
     <script src="controller.js"></script>
     <title>Mouvement</title>
 </head>
+
 <body>
-    <p id="score">Score: 0</p>
-    <canvas id="my_canvas" width="250" height="400" class="centered-canvas"></canvas>
+    <div class="container">
+        <p id="score">Score: 0</p>
+        <canvas id="my_canvas" width="250" height="400" class="centered-canvas"></canvas>
+        <button class="button" id="player-button" onclick="game('player')">
+            New Game
+        </button>
+        <button class="button" onclick="game('ai')">
+            Training
+        </button>
+    </div>
 
     <div id="game-over" class="game-over-screen">
         <h1>Game Over</h1>
@@ -20,9 +30,9 @@
     </div>
 
     <div id="win-screen" class="game-over-screen">
-        <h1>Félicitations!</h1>
+        <h1>Congratulation !</h1>
         <p id="win-score"></p>
-        <button id="restart-win-btn">Rejouer</button>
+        <button id="restart-win-btn">New Game</button>
     </div>
 
     <div id="success-banner" class="success-banner">
@@ -30,8 +40,11 @@
     </div>
 
     <script>
-        const app = new Controller(new Model(), new View());
-        app.Update();
+        function game(type) {
+            const app = new Controller(new Model(), new View(), type);
+            app.Update();
+        }
     </script>
 </body>
+
 </html>

@@ -58,7 +58,7 @@ class View {
         });
     }
 
-    Display(position, tiles, score) {
+    Display(position, tiles, score, type) {
         this.player.x = position.x;
         this.player.y = position.y;
         this.score = score;
@@ -80,7 +80,7 @@ class View {
         let scoreDisplay = document.getElementById('score');
         scoreDisplay.textContent = `Score: ${Math.floor(this.score)}`;
 
-        if (Math.floor(this.score) >= 10000) {
+        if (Math.floor(this.score) >= 10000 && "player" === type) {
             this.WinGame(Math.floor(this.score));
         }
     }

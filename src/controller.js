@@ -1,8 +1,9 @@
 class Controller {
-    constructor(model, view) {
+    constructor(model, view, type) {
         this._model = model;
         this._view = view;
-        
+        this._type = type;
+
         this._startTime     = Date.now();
         this._lag           = 0;
         this._fps           = 60; // Frame rate.
@@ -16,11 +17,13 @@ class Controller {
     }
 
     Display(position, tiles, score) {
-        this._view.Display(position, tiles, score);
+        this._view.Display(position, tiles, score, this._type);
     }
 
     GameOver() {
-        this._view.GameOver(this._model.score);
+        if("player" === this._type) {
+            this._view.GameOver(this._model.score);
+        }
     }    
 
     SetDirection(newDirection) {

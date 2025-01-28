@@ -55,7 +55,7 @@ class Model {
         this._direction = 0;
         this._gravitySpeed = 0;
         this._position = { x: 100, y: 300 }; // Position de départ
-        this.score = 0;
+        this.score = 9500;
 
         this._widthCell = 50; // Largeur des plateformes
         this._heightCell = 12; // Hauteur des plateformes
