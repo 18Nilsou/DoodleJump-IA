@@ -17,7 +17,7 @@ class Controller {
     }
 
     Display(position, tiles, score, nearestTiles, isAlive) {
-        this._view.Display(position, tiles, score, this._type, nearestTiles, isAlive);
+        this._view.Display(position, tiles, score, nearestTiles, isAlive);
     }
 
     GameOver() {

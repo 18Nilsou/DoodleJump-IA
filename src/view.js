@@ -1,12 +1,13 @@
 class View {
 
-    constructor() {
+    constructor(gameType) {
         this._widthCell = 50;
         this._heightCell = 12;
         this._canvas = document.getElementById('my_canvas');
         this.ctx = this._canvas.getContext('2d');
         this._hold_right = false;
         this._hold_left = false;
+        this.gameType = gameType;
 
         this.player = { x: 50, y: 50 }; // Position initiale du joueur
         this.score = 0;
@@ -23,6 +24,8 @@ class View {
     }
 
     Events() {
+        if("player" !== this.gameType) { return; }
+        
         document.addEventListener('keydown', (evt) => {
             if (evt.key === 'ArrowLeft' || evt.key === 'ArrowRight') {
                 switch (evt.key) {
@@ -58,7 +61,7 @@ class View {
         });
     }
 
-    Display(position, tiles, score, type, nearestTiles, isAlive) {
+    Display(position, tiles, score, nearestTiles, isAlive) {
         this.player.x = position.x;
         this.player.y = position.y;
         this.score = score;
@@ -83,11 +86,11 @@ class View {
         let isAliveDisplay = document.getElementById('isAlive');
         isAliveDisplay.textContent = `isAlive: ${isAlive}`;
 
-        if (Math.floor(this.score) >= 10000 && "player" === type) {
+        if (Math.floor(this.score) >= 10000 && "player" === this.gameType) {
             this.WinGame(Math.floor(this.score));
         }
 
-        if ("ai" === type && nearestTiles != null) {
+        if ("ai" === this.gameType && nearestTiles != null) {
             this.Vector(nearestTiles);
         }
     }

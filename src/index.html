@@ -42,7 +42,7 @@
 
     <script>
         function game(type) {
-            const app = new Controller(new Model(type), new View(), type);
+            const app = new Controller(new Model(type), new View(type), type);
             app.Update();
         }
     </script>
