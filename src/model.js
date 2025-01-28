@@ -55,7 +55,7 @@ class Model {
         this._direction = 0;
         this._gravitySpeed = 0;
         this._position = { x: 100, y: 300 }; // Position de départ
-        this.score = 9500;
+        this.score = 0;
 
         this._widthCell = 50; // Largeur des plateformes
         this._heightCell = 12; // Hauteur des plateformes
@@ -149,7 +149,7 @@ class Model {
         this.tiles.push(tile);
     }
 
-    Move(fps, canvas) {
+    Move(fps, canvas, type) {
         if (this.score >= 10000) { // Stop the game
             return;
         }
@@ -205,8 +205,32 @@ class Model {
             this.generateNewTiles(canvas, this.score);
         }
 
-        this.b_Display(this._position, this.tiles, this.score);
+        let nearestTiles = null;
+        if ("ai" === type) {
+            nearestTiles = this._getNearestTiles(canvas);
+        }
+
+        this.b_Display(this._position, this.tiles, this.score, nearestTiles);
     }
+
+    _getNearestTiles() {
+        const distances = this.tiles.map((tile) => {
+            // distance between the middle of the doodle and the middle of the tile
+            const dx = this._position.x - (tile.x + tile.width / 2);
+            const dy = this._position.y - (tile.y + tile.height / 2);
+            return {
+                tile: tile,
+                distance: Math.sqrt(dx * dx + dy * dy),
+            };
+        });
+        
+        // Sort the tiles lists with their distance
+        distances.sort((a, b) => a.distance - b.distance);
+    
+        // Get the 4 nearest tiles
+        return distances.slice(0, 4).map((item) => item.tile);
+    }
+    
 
     _Jump() {
         this._gravitySpeed = -Model.JUMP_FORCE;

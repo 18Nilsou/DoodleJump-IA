@@ -16,8 +16,8 @@ class Controller {
         this.Update();
     }
 
-    Display(position, tiles, score) {
-        this._view.Display(position, tiles, score, this._type);
+    Display(position, tiles, score, nearestTiles) {
+        this._view.Display(position, tiles, score, this._type, nearestTiles);
     }
 
     GameOver() {
@@ -38,7 +38,7 @@ class Controller {
         this._startTime = currentTime;
 
         while (this._lag >= this._frameDuration) {
-            this._model.Move(this._fps, this._view._canvas);
+            this._model.Move(this._fps, this._view._canvas, this._type);
             this._lag -= this._frameDuration;
         }
         

@@ -58,7 +58,7 @@ class View {
         });
     }
 
-    Display(position, tiles, score, type) {
+    Display(position, tiles, score, type, nearestTiles) {
         this.player.x = position.x;
         this.player.y = position.y;
         this.score = score;
@@ -83,6 +83,29 @@ class View {
         if (Math.floor(this.score) >= 10000 && "player" === type) {
             this.WinGame(Math.floor(this.score));
         }
+
+        if ("ai" === type && nearestTiles !== null) {
+            this.Vector(nearestTiles);
+        }
+    }
+
+    Vector(nearestTiles) {
+        nearestTiles.forEach(tile => {
+            // Get the center of the tile
+            const tileCenterX = tile.x + tile.width / 2;
+            const tileCenterY = tile.y + tile.height / 2;
+
+            // Get the center of the doodle (player)
+            const doodleCenterX = this.player.x + 20;
+            const doodleCenterY = this.player.y + 20;
+
+            this.ctx.beginPath();
+            this.ctx.moveTo(doodleCenterX, doodleCenterY);
+            this.ctx.lineTo(tileCenterX, tileCenterY);
+            this.ctx.strokeStyle = 'red';
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
+        })
     }
 
     GameOver(score) {
