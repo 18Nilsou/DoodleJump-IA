@@ -4,6 +4,12 @@ class BoardController {
         this.mainCanvas = document.getElementById('canvas-0');
         this.controllers = [];
         this.darwin = new Darwin(30, 100);
+        
+        this.chart = null;
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(() => {
+            this.updateChart();
+        });
     }
 
     createGameInstance(index) {
@@ -26,15 +32,11 @@ class BoardController {
         return gameDiv;
     }
 
-    async aiGame() {
-        console.log('Starting AI training...');
-        
+    async aiGame() {        
         // Configuration initiale des couches neuronales
         const layerNeural = [6, 4, 3];
         
-        for (let generation = 0; generation < this.darwin.generation; generation++) {
-            console.log(`Generation ${generation + 1}/${this.darwin.generation}`);
-            
+        for (let generation = 0; generation < this.darwin.generation; generation++) {            
             // Créer la population initiale si c'est la première génération
             if (generation === 0) {
                 this.darwin.population = Array(this.darwin.nbrAI).fill(null).map(() => new AI(layerNeural));
@@ -47,6 +49,7 @@ class BoardController {
             if (generation < this.darwin.generation - 1) {
                 this.darwin.evolve(layerNeural);
             }
+            this.updateChart();
         }
     }
 
@@ -87,6 +90,41 @@ class BoardController {
         const app = new Controller(new Model(gameType), new View(gameType, 0), gameType);
         this.controllers.push(app);
         app.Update();
+    }
+
+    updateChart() {
+        const data = new google.visualization.DataTable();
+        data.addColumn('number', 'Generation');
+        data.addColumn('number', 'Best Score');
+        data.addColumn('number', 'Average Score');
+        
+        // add Data
+        for (let i = 0; i < this.darwin.bestScore.length; i++) {
+            data.addRow([i, this.darwin.bestScore[i], this.darwin.averageScore[i]]);
+        }
+        
+        const options = {
+            title: 'AI Performance Over Generations',
+            curveType: 'function',
+            legend: { position: 'bottom' },
+            hAxis: {
+                title: 'Generation',
+                minValue: 0
+            },
+            vAxis: {
+                title: 'Score',
+                minValue: 0
+            },
+            animation: {
+                duration: 500,
+                easing: 'out'
+            }
+        };
+        
+        if (!this.chart) {
+            this.chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        }
+        this.chart.draw(data, options);
     }
 }
 

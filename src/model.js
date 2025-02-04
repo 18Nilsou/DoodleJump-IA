@@ -381,7 +381,6 @@ class Model {
     
         this.timeoutID = setTimeout(
             () => {
-                console.log("Game Over due to timeout");
                 this.isAlive = false;
             },
             Model.TIMEOUT_SECONDS
