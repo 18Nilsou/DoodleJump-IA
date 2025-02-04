@@ -6,10 +6,6 @@ class BoardController {
         this.darwin = new Darwin(30, 100);
         
         this.chart = null;
-        google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(() => {
-            this.updateChart();
-        });
     }
 
     createGameInstance(index) {
@@ -32,8 +28,12 @@ class BoardController {
         return gameDiv;
     }
 
-    async aiGame() {        
-        // Configuration initiale des couches neuronales
+    async aiGame() {
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(() => {
+            this.updateChart();
+        });
+        
         const layerNeural = [6, 4, 3];
         
         for (let generation = 0; generation < this.darwin.generation; generation++) {            
@@ -42,7 +42,6 @@ class BoardController {
                 this.darwin.population = Array(this.darwin.nbrAI).fill(null).map(() => new AI(layerNeural));
             }
             
-            // Créer et démarrer tous les jeux pour la génération actuelle
             await this.runGeneration();
             
             // Faire évoluer la population pour la prochaine génération
@@ -59,7 +58,7 @@ class BoardController {
         this.canvasGrid.innerHTML = '';
 
         // Créer une instance de jeu pour chaque AI
-        for (let i = 0; i < this.darwin.nbrAI; i++) {
+        for (let i = 1; i < this.darwin.nbrAI + 1; i++) {
             const gameInstance = this.createGameInstance(i);
             this.canvasGrid.appendChild(gameInstance);
             
