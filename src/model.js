@@ -1,44 +1,61 @@
 class Darwin{
 
-    constructor(){
-        this.nbrAI = 56;
+    constructor(nbrAI, generation){
+        this.nbrAI = nbrAI;
         this.population = [];
-        this.generation = 100;
+        this.generation = generation;
         this.bestScore = [];
         this.averageScore = [];
     }
 
-    evolve(layerNeural){
+    evolve(layerNeural) {
 
-        this.bestScore.push(this.population.sort((a, b) => a.score - b.score)[0].score);
+        // Sort population once and reuse it
+        const sortedPopulation = [...this.population].sort((a, b) => b.score - a.score);  // Changed to descending order
+        
+        // Update statistics
+        this.bestScore.push(sortedPopulation[0].score);
         this.averageScore.push(this.population.reduce((acc, ai) => acc + ai.score, 0) / this.nbrAI);
-
-        //take the best 10% of the population and 5% ramdom (in the best 50%) and make them reproduce
-        let parents = this.population.sort((a, b) => a.score - b.score).slice(0, 8);
-        let randomAI = this.population.sort((a, b) => a.score - b.score).slice(8, 26);
-        for (let i = parents.length; i < this.nbrAI; ++i) {
-            parents.push(randomAI[Math.floor(Math.random() * randomAI.length)]);
-        }
+    
+        // Select parents - top 10% (8 out of 55)
+        let bestParents = sortedPopulation.slice(0, this.nbrAI/10);
+        // Select random AIs from top 50% (positions 8-26)
+        let randomParents = sortedPopulation.slice(0, this.nbrAI/2);
+        
         let newPopulation = [];
-
-        //everyone reproduce with everyone
-        for (let i = 0; i < parents.length; ++i) {
-            for (let j = 0; j < parents.length; ++j) {
-                let child = new AI(layerNeural);
-                for(let k = 0; k < child.matrix.length; ++k){
-                    for(let z = 0; z < child.matrix[k].length; ++z){
-                        //      node child = (      parent1 node      *   parent1 score  +      parent2 node       * parent2 score   )/ (parent1 score   + parent2 score)
-                        child.matrix[k][z] = (parents[i].matrix[k][z] * parents[i].score + parents[j].matrix[k][z] * parents[j].score)/(parents[i].score + parents[j].score);
-                        
-                        //mutation
-                        if(Math.random() < 0.1){
-                            child.matrix[k][z] *= (Math.random() * 0.4) - 0.2;
+    
+        while (newPopulation.length < this.nbrAI) {
+            // Select two random parents
+            const parent1 = bestParents[Math.floor(Math.random() * bestParents.length)];
+            const parent2 = randomParents[Math.floor(Math.random() * randomParents.length)];
+            let child = new AI(layerNeural);
+            const totalScore = parent1.score + parent2.score;
+            if (totalScore === 0) continue;
+            for (let i = 0; i < parent1.layerNeural.length-1; ++i) {
+                // Create child's neural network
+                for (let k = 0; k < child.matrix.length; k++) {
+                    for (let z = 0; z < child.matrix[k].length; z++) {
+                        // Weighted average of parent values
+                        child.matrix[i][k][z] = (
+                            parent1.matrix[i][k][z] * parent1.score + 
+                            parent2.matrix[i][k][z] * parent2.score
+                        ) / totalScore;
+    
+                        // Apply mutation with 10% chance
+                        if (Math.random() < 0.2) {
+                            // Changed mutation to be more controlled:
+                            // Random value between -0.2 and 0.2
+                            const mutation = (Math.random() * 0.6) - 0.3;
+                            child.matrix[i][k][z] *= mutation;
                         }
                     }
-                newPopulation.push(child);
                 }
             }
+            newPopulation.push(child);   
         }
+    
+        // Update population with new generation
+        this.population = newPopulation;
     }
 
 }
@@ -77,7 +94,6 @@ class AI {
     }
 
     forward(vector, matrix, nbrNeural){
-
         let newVector = new Array(nbrNeural).fill(0);
        
         for (let j = 0; j < nbrNeural; ++j) {
@@ -97,10 +113,10 @@ class AI {
     }
 
     // Si 0 = bouge pas / 1 = gauche / 2 = droite
-    choose(vector){
+    choose(vector){       
         let index = 0;
-        for (let i = 0; i < vector.length; ++i) {
-            if(vector[index] < vector[i]){
+        for (let i = 1; i < vector.length; i++) {
+            if (vector[i] > vector[index]) {
                 index = i;
             }
         }
@@ -170,10 +186,11 @@ class Model {
         this.score = 0;
         this.gameType = gameType;
         this.timeoutID = undefined;
+      
         this.isAlive = true;
-
-        this.ai = new AI([6,4,3]);
         this.isAIEnabled = false;
+
+        this.ai = new AI([6,12,15,8,3]);
 
         this._widthCell = 50; // Largeur des plateformes
         this._heightCell = 12; // Hauteur des plateformes

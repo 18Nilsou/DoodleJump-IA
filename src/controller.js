@@ -3,7 +3,7 @@ class BoardController {
         this.canvasGrid = document.getElementById('canvas-grid');
         this.mainCanvas = document.getElementById('canvas-0');
         this.controllers = [];
-        this.darwin = new Darwin();
+        this.darwin = new Darwin(30, 100);
     }
 
     createGameInstance(index) {
