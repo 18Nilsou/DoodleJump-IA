@@ -1,7 +1,7 @@
 class Darwin{
 
     constructor(){
-        this.nbrAI = 55;
+        this.nbrAI = 56;
         this.population = [];
         this.generation = 0;
         this.bestScore = [];
@@ -38,26 +38,6 @@ class Darwin{
                 newPopulation.push(child);
                 }
             }
-        }
-    }
-
-    life(){
-        for (let i = 0; i < this.nbrAI; ++i) {
-            
-            let model = new Model("ai");
-            model.ai = this.population[i];
-            
-            model.BindGameOver(() => {
-                this.population[i].score = model.score;
-            });
-            
-            model.BindDisplay((position, tiles, score, nearestTiles, isAlive) => {
-                if (!isAlive) {
-                    model = null;
-                }
-            });
-
-            this.population[i] = model.ai;
         }
     }
 
@@ -300,7 +280,10 @@ class Model {
             return;
         }
         
-        this.moveAI();
+        if("ai" === this.gameType){
+            this.moveAI();
+        }
+        
 
         if (this.score >= 9750 && !this._finishLineGenerated) { // Generate finish line and remove tiles above it
             this.generateFinishLine(canvas);
