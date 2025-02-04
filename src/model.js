@@ -3,7 +3,7 @@ class Darwin{
     constructor(){
         this.nbrAI = 56;
         this.population = [];
-        this.generation = 0;
+        this.generation = 100;
         this.bestScore = [];
         this.averageScore = [];
     }

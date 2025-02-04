@@ -7,52 +7,8 @@
     <script src="model.js"></script>
     <script src="view.js"></script>
     <script src="controller.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
     <title>Mouvement</title>
-    <style>
-        .canvas-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .game-instance {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .mini-canvas {
-            width: calc(33.33% - 20px);
-            min-width: 150px;
-            max-width: 200px;
-            height: auto;
-            aspect-ratio: 5/8;
-        }
-
-        @media (max-width: 768px) {
-            .mini-canvas {
-                width: calc(50% - 20px);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .mini-canvas {
-                width: calc(100% - 20px);
-            }
-        }
-
-        .container {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .player-canvas {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -67,7 +23,9 @@
                 Training
             </button>
         </div>
-        <div id="canvas-grid" class="canvas-container"></div>
+        <div id="canvas-grid" class="canvas-container">
+            <div id="myChart" style="max-width:700px; height:400px"></div>
+        </div>
     </div>
 
     <div id="game-over" class="game-over-screen">
@@ -87,52 +45,12 @@
     </div>
 
     <script>
-        function createGameInstance(index) {
-            const gameDiv = document.createElement('div');
-            gameDiv.className = 'game-instance';
-            
-            const canvas = document.createElement('canvas');
-            canvas.id = `canvas-${index}`;
-            canvas.width = 250;
-            canvas.height = 400;
-            canvas.className = 'mini-canvas';
-            
-            const score = document.createElement('p');
-            score.textContent = 'Score: 0';
-            score.id = `score-${index}`;
-
-            const isAlive = document.createElement('p');
-            isAlive.textContent = 'isAlive: false';
-            isAlive.id = `isAlive-${index}`;
-            
-            
-            gameDiv.appendChild(canvas);
-            gameDiv.appendChild(score);
-            gameDiv.appendChild(isAlive);
-
-            return gameDiv;
-        }
-
-        function game(type) {
-            const canvasGrid = document.getElementById('canvas-grid');
-            const mainCanvas = document.getElementById('canvas-0');
-            
-            if (type === 'ai') {
-                mainCanvas.style.display = 'none';
-                canvasGrid.innerHTML = ''; // Clear previous instances
-                
-                for (let i = 1; i < 56; i++) {
-                    const gameInstance = createGameInstance(i);
-                    canvasGrid.appendChild(gameInstance);
-                    
-                    const app = new Controller(new Model(type), new View(type, i), type);
-                    app.Update();
-                }
+        function game(gameType) {
+            boardController = new BoardController();
+            if("ai" === gameType) {
+                boardController.aiGame();
             } else {
-                mainCanvas.style.display = 'block';
-                canvasGrid.innerHTML = ''; // Clear training instances
-                const app = new Controller(new Model(type), new View(type , 0), type);
-                app.Update();
+                boardController.playerGame();
             }
         }
     </script>
