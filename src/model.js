@@ -173,6 +173,7 @@ class Model {
         this.isAlive = true;
 
         this.ai = new AI([6,4,3]);
+        this.isAIEnabled = false;
 
         this._widthCell = 50; // Largeur des plateformes
         this._heightCell = 12; // Hauteur des plateformes
@@ -280,7 +281,7 @@ class Model {
             return;
         }
         
-        if("ai" === this.gameType){
+        if (this.gameType === "ai" || (this.gameType === "player" && this.isAIEnabled)) {   // If this is the training or if the player enabled the ai in his game
             this.moveAI();
         }
         
@@ -345,6 +346,13 @@ class Model {
         }
 
         this.b_Display(this._position, this.tiles, this.score, nearestTiles, this.isAlive);
+    }
+
+    toggleAI() {
+        this.isAIEnabled = !this.isAIEnabled;
+        if (!this.isAIEnabled) {    // Reset direction when using AI
+            this._direction = 0;
+        }
     }
 
     _resetTimeout() {

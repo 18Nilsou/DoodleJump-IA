@@ -14,8 +14,8 @@
     <div class="container">
         <p id="score-0">Score: 0</p>
         <p id="isAlive-0">isAlive: false</p>
-        <canvas id="canvas-0" width="250" height="400" class="centered-canvas player-canvas"></canvas>
-        <div class="button-container">
+        <canvas id="canvas-0" width="250" height="400" class="player-canvas"></canvas>
+        <div id="button-container" class="button-container">
             <button class="button" id="player-button" onclick="game('player')">
                 New Game
             </button>
@@ -31,13 +31,13 @@
     <div id="game-over" class="game-over-screen">
         <h1>Game Over</h1>
         <p id="final-score"></p>
-        <button id="restart-btn">New Game</button>
+        <button id="restart-btn">Home</button>
     </div>
 
     <div id="win-screen" class="game-over-screen">
         <h1>Congratulation !</h1>
         <p id="win-score"></p>
-        <button id="restart-win-btn">New Game</button>
+        <button id="restart-win-btn">Home</button>
     </div>
 
     <div id="success-banner" class="success-banner">

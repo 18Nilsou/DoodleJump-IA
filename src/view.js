@@ -18,7 +18,36 @@ class View {
         this.DOODLE_IMAGE = new Image();
         this.DOODLE_IMAGE.src = '../assets/lik-left@2x.png';    // Default : left image
 
+        if (gameType === "player") {
+            this.createAIToggleButton();
+        }
+
         this.Events();
+    }
+
+    createAIToggleButton() {
+
+        let toggleBtn = document.getElementById('ai-toggle');
+        if(toggleBtn === null) {
+            toggleBtn = document.createElement('button');
+            toggleBtn.textContent = "Enable AI";
+            toggleBtn.className = 'button';
+            toggleBtn.id = 'ai-toggle';
+        }
+
+        let buttonContainer = document.getElementById('button-container');
+        buttonContainer.insertBefore(toggleBtn, buttonContainer.firstChild);
+
+        toggleBtn.addEventListener('click', () => {
+            if (this.b_ToggleAI) {
+                this.b_ToggleAI();
+                toggleBtn.textContent = toggleBtn.textContent === "Enable AI" ? "Disable AI" : "Enable AI";
+            }
+        });
+    }
+
+    BindToggleAI(callback) {
+        this.b_ToggleAI = callback;
     }
 
     BindSetDirection(callback) {

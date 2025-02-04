@@ -104,8 +104,15 @@ class Controller {
         this._model.BindDisplay(this.Display.bind(this));
         this._model.BindGameOver(this.GameOver.bind(this));
         this._view.BindSetDirection(this.SetDirection.bind(this));
+        if (type === "player") {
+            this._view.BindToggleAI(this.ToggleAI.bind(this));
+        }
 
         this.Update();
+    }
+
+    ToggleAI() {
+        this._model.toggleAI();
     }
 
     Display(position, tiles, score, nearestTiles, isAlive) {
