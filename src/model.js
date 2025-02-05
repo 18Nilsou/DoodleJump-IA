@@ -11,7 +11,9 @@ class Darwin{
     evolve(layerNeural) {
         // Trier la population en fonction du score (ordre décroissant)
         const sortedPopulation = [...this.population].sort((a, b) => b.score - a.score);
-    
+        const params = new URLSearchParams(window.location.search);
+        params.set('maxMatrix', JSON.stringify(sortedPopulation[0].matrix));
+        window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
         // Mettre à jour les statistiques
         this.bestScore.push(sortedPopulation[0].score);
         this.averageScore.push(this.population.reduce((acc, ai) => acc + ai.score, 0) / this.nbrAI);
@@ -47,10 +49,13 @@ class Darwin{
     
             if (totalScore === 0) continue;
     
-            for (let i = 0; i < parent1.layerNeural.length - 1; ++i) {
-                for (let k = 0; k < child.matrix.length - 1; ++k) {
+            for (let i = 0; i < parent1.layerNeural.length-1; ++i) {
+                for (let k = 0; k < child.matrix.length-1; ++k) {
                     for (let z = 0; z < child.matrix[k].length; ++z) {
-                        
+                        console.log(parent1.matrix[i]);
+                        console.log(parent1.matrix[i][k]);
+                        console.log(k +" "+child.matrix[k].length)
+                        console.log(parent1.matrix[i][k][z]);
                         // Moyenne pondérée des parents
                         child.matrix[i][k][z] = (
                             parent1.matrix[i][k][z] * parent1.score + 
@@ -400,6 +405,10 @@ class Model {
         this.isAIEnabled = !this.isAIEnabled;
         if (!this.isAIEnabled) {    // Reset direction when using AI
             this._direction = 0;
+        }else {
+            let matrix = JSON.parse(new URLSearchParams(window.location.search).get('maxMatrix'));
+            console.log(matrix);
+            this.ai.matrix = matrix;
         }
     }
 

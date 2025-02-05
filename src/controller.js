@@ -2,7 +2,7 @@ class BoardController {
     constructor() {
         this.canvasGrid = document.getElementById('canvas-grid');
         this.controllers = [];
-        this.darwin = new Darwin(100, 50000);
+        this.darwin = new Darwin(10, 50000);
         this.chart = null;
     }
 
