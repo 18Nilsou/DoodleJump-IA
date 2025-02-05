@@ -2,11 +2,19 @@ class BoardController {
     constructor() {
         this.canvasGrid = document.getElementById('canvas-grid');
         this.controllers = [];
-        this.darwin = new Darwin(10, 50000);
+        this.darwin = new Darwin(100, 50000);
         this.chart = null;
     }
 
     createPlayerInstance() {
+        // Reset elements
+        const gameOverScreen = document.getElementById('game-over');
+        gameOverScreen.style.display = 'none';
+
+        const winScreen = document.getElementById('win-screen');
+        winScreen.style.display = 'none';
+
+        // Add player game type elements
         const gameDiv = document.createElement('div');
         gameDiv.className = 'main-game-instance';
 
@@ -148,6 +156,7 @@ class BoardController {
 
     // Stop all the previous games
     clearGames() {
+        this.resetChart();
         this.controllers.forEach(controller => controller.SetIsRunning(false));
         this.controllers = [];
         this.canvasGrid.innerHTML = '';
@@ -186,38 +195,6 @@ class BoardController {
         });
     }
 
-    async aiGame() {
-        google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(() => {
-            this.updateChart();
-        });
-        
-        const layerNeural = [6,12,15,8,3];
-        
-        for (let generation = 0; generation < this.darwin.generation; generation++) {            
-            // Créer la population initiale si c'est la première génération
-            if (generation === 0) {
-                this.darwin.population = Array(this.darwin.nbrAI).fill(null).map(() => new AI(layerNeural));
-            }
-            
-            await this.runGeneration();
-
-            // Faire évoluer la population pour la prochaine génération
-            if (generation < this.darwin.generation - 1) {
-                this.darwin.evolve(layerNeural);
-            }
-            this.updateChart();
-        }
-    }
-
-    playerGame() {
-        let gameType = "player";
-        this.canvasGrid.innerHTML = '';
-        const app = new Controller(new Model(gameType), new View(gameType, 0), gameType);
-        this.controllers.push(app);
-        app.Update();
-    }
-
     updateChart() {
         const data = new google.visualization.DataTable();
         data.addColumn('number', 'Generation');
@@ -252,6 +229,38 @@ class BoardController {
         }
         this.chart.draw(data, options);
     }
+
+    resetChart() {
+        this.darwin.bestScore = [];
+        this.darwin.averageScore = [];
+        if (this.chart) {
+            const data = new google.visualization.DataTable();
+            data.addColumn('number', 'Generation');
+            data.addColumn('number', 'Best Score');
+            data.addColumn('number', 'Average Score');
+    
+            const options = {
+                title: 'AI Performance Over Generations',
+                curveType: 'function',
+                legend: { position: 'bottom' },
+                hAxis: {
+                    title: 'Generation',
+                    minValue: 0
+                },
+                vAxis: {
+                    title: 'Score',
+                    minValue: 0
+                },
+                animation: {
+                    duration: 500,
+                    easing: 'out'
+                }
+            };
+    
+            this.chart.draw(data, options);
+        }
+    }
+    
 }
 
 class Controller {

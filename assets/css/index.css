@@ -32,34 +32,6 @@ body {
     height: auto;
 }
 
-.game-over-screen {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    text-align: center;
-    padding: 20px;
-    border-radius: 10px;
-    display: none;
-}
-.game-over-screen h1 {
-    font-size: 36px;
-    margin-bottom: 10px;
-}
-.game-over-screen button {
-    padding: 10px 20px;
-    font-size: 18px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #ff5722;
-    color: white;
-}
-.game-over-screen button:hover {
-    background-color: #e64a19;
-}
 .success-banner {
     position: absolute;
     top: 100px;
@@ -107,4 +79,8 @@ body {
 .button-container {
     display: flex;
     gap: 1em;
+}
+
+.text-screen {
+    display: none;
 }
