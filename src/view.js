@@ -26,7 +26,6 @@ class View {
     }
 
     createAIToggleButton() {
-
         let toggleBtn = document.getElementById('ai-toggle');
         if(toggleBtn === null) {
             toggleBtn = document.createElement('button');
@@ -149,27 +148,17 @@ class View {
     GameOver(score) {
         const gameOverScreen = document.getElementById('game-over');
         const finalScoreDisplay = document.getElementById('final-score');
-        const restartButton = document.getElementById('restart-btn');
 
         gameOverScreen.style.display = 'block';
         finalScoreDisplay.textContent = `Votre score final est : ${Math.floor(score)}`;
-
-        restartButton.addEventListener('click', () => {
-            location.reload(); // Recharger la page pour commencer une nouvelle partie
-        });
     }
 
 
     WinGame(score) {
         const winScreen = document.getElementById('win-screen');
         const winScoreDisplay = document.getElementById('win-score');
-        const restartButton = document.getElementById('restart-win-btn');
 
         winScreen.style.display = 'block';
         winScoreDisplay.textContent = `Votre score final est : ${score}`;
-
-        restartButton.addEventListener('click', () => {
-            location.reload(); // Recharger la page pour recommencer
-        });
     }
 }

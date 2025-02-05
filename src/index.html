@@ -11,7 +11,7 @@
     <title>Mouvement</title>
 </head>
 <body>
-    <div class="container">
+    <div id="container" class="container">
         <div id="chart_div" style="width: 100%; height: 500px;"></div>
         <div id="canvas-grid" class="canvas-container"></div>
     </div>
@@ -19,13 +19,13 @@
     <div id="game-over" class="game-over-screen">
         <h1>Game Over</h1>
         <p id="final-score"></p>
-        <button id="restart-btn">Home</button>
+        <button id="restart-btn" onclick="boardController.startPlayerGame()">New Game</button>
     </div>
 
     <div id="win-screen" class="game-over-screen">
         <h1>Congratulation !</h1>
         <p id="win-score"></p>
-        <button id="restart-win-btn">Home</button>
+        <button id="restart-win-btn" onclick="boardController.startPlayerGame()">New Game</button>
     </div>
 
     <div id="success-banner" class="success-banner">
@@ -34,7 +34,7 @@
 
     <script>
         const boardController = new BoardController();
-        boardController.startAIGame();
+        boardController.startPlayerGame();
     </script>
 </body>
 </html>

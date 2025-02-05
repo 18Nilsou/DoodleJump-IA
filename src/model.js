@@ -101,6 +101,7 @@ class AI {
                 newVector[j] += vector[j] * matrix[j][i];
             }
         }
+
         return  newVector;
     }
 
