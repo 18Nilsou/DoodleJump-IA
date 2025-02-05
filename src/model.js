@@ -295,7 +295,7 @@ class Model {
         if (!this.isAlive) {
             this.b_Display(this._position, this.tiles, this.score, null, this.isAlive);
             this.ai.score = this.score;    
-            return;
+            return false;
         }
         
         if (this.gameType === "ai" || (this.gameType === "player" && this.isAIEnabled)) {   // If this is the training or if the player enabled the ai in his game
@@ -348,7 +348,7 @@ class Model {
         if (this.checkGameOver(canvas)) {
             this.isAlive = false;
             this.b_GameOver();
-            return;
+            return false;
         }
 
         this.removeOldTiles(canvas);
@@ -363,6 +363,7 @@ class Model {
         }
 
         this.b_Display(this._position, this.tiles, this.score, nearestTiles, this.isAlive);
+        return true;
     }
 
     toggleAI() {

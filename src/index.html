@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,24 +10,10 @@
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <title>Mouvement</title>
 </head>
-
 <body>
     <div class="container">
-        <p id="score-0">Score: 0</p>
-        <p id="isAlive-0">isAlive: false</p>
-        <canvas id="canvas-0" width="250" height="400" class="player-canvas"></canvas>
-        <div id="button-container" class="button-container">
-            <button class="button" id="player-button" onclick="game('player')">
-                New Game
-            </button>
-            <button class="button" onclick="game('ai')">
-                Training
-            </button>
-        </div>
-
         <div id="chart_div" style="width: 100%; height: 500px;"></div>
         <div id="canvas-grid" class="canvas-container"></div>
-
     </div>
 
     <div id="game-over" class="game-over-screen">
@@ -48,17 +33,8 @@
     </div>
 
     <script>
-        boardController = new BoardController();
-        boardController.playerGame(); // Démarre une partie par défaut
-        function game(gameType) {
-            if (gameType === "ai") {
-                boardController.aiGame();
-            } else {
-                boardController.playerGame();
-            }
-        }
-
+        const boardController = new BoardController();
+        boardController.startAIGame();
     </script>
 </body>
-
 </html>

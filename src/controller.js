@@ -1,34 +1,85 @@
 class BoardController {
     constructor() {
         this.canvasGrid = document.getElementById('canvas-grid');
-        this.mainCanvas = document.getElementById('canvas-0');
         this.controllers = [];
         this.darwin = new Darwin(30, 100);
-        
         this.chart = null;
     }
 
-    createGameInstance(index) {
+    createPlayerInstance() {
+        const gameDiv = document.createElement('div');
+        gameDiv.className = 'main-game-instance';
+        
+        const canvas = document.createElement('canvas');
+        canvas.id = 'canvas-0';
+        canvas.width = 250;
+        canvas.height = 400;
+        canvas.className = 'canvas-0';
+        
+        const score = document.createElement('p');
+        score.textContent = 'Score: 0';
+        score.id = 'score-0';
+        
+        const isAlive = document.createElement('p');
+        isAlive.textContent = 'isAlive: true';
+        isAlive.id = 'isAlive-0';
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.id = 'button-container';
+        buttonContainer.className = 'button-container';
+
+        const newGameBtn = document.createElement('button');
+        newGameBtn.className = 'button';
+        newGameBtn.textContent = 'New Game';
+        newGameBtn.onclick = () => location.reload();
+
+        const trainingBtn = document.createElement('button');
+        trainingBtn.className = 'button';
+        trainingBtn.textContent = 'Training';
+        trainingBtn.onclick = () => this.startAIGame();
+
+        buttonContainer.appendChild(newGameBtn);
+        buttonContainer.appendChild(trainingBtn);
+
+        gameDiv.appendChild(score);
+        gameDiv.appendChild(isAlive);
+        gameDiv.appendChild(canvas);
+        gameDiv.appendChild(buttonContainer);
+
+        return gameDiv;
+    }
+
+    createAIInstance(index) {
         const gameDiv = document.createElement('div');
         gameDiv.className = 'game-instance';
+        
         const canvas = document.createElement('canvas');
         canvas.id = `canvas-${index}`;
         canvas.width = 250;
         canvas.height = 400;
         canvas.className = 'mini-canvas';
+        
         const score = document.createElement('p');
         score.textContent = 'Score: 0';
         score.id = `score-${index}`;
+        
         const isAlive = document.createElement('p');
         isAlive.textContent = 'isAlive: true';
         isAlive.id = `isAlive-${index}`;
+
         gameDiv.appendChild(canvas);
         gameDiv.appendChild(score);
         gameDiv.appendChild(isAlive);
+        
         return gameDiv;
     }
 
-    async aiGame() {
+    async startAIGame() {
+        this.clearGames();
+        
+        const chartDiv = document.getElementById('chart_div');
+        chartDiv.style.display = 'block';
+
         google.charts.load('current', {'packages':['corechart']});
         google.charts.setOnLoadCallback(() => {
             this.updateChart();
@@ -37,14 +88,12 @@ class BoardController {
         const layerNeural = [6, 4, 3];
         
         for (let generation = 0; generation < this.darwin.generation; generation++) {            
-            // Créer la population initiale si c'est la première génération
             if (generation === 0) {
                 this.darwin.population = Array(this.darwin.nbrAI).fill(null).map(() => new AI(layerNeural));
             }
             
             await this.runGeneration();
             
-            // Faire évoluer la population pour la prochaine génération
             if (generation < this.darwin.generation - 1) {
                 this.darwin.evolve(layerNeural);
             }
@@ -52,14 +101,38 @@ class BoardController {
         }
     }
 
+    startPlayerGame() {
+        this.clearGames();
+
+        const chartDiv = document.getElementById('chart_div');
+        chartDiv.style.display = 'none';
+
+        const gameDiv = this.createPlayerInstance();
+        this.canvasGrid.appendChild(gameDiv);
+        
+        const model = new Model("player");
+        const view = new View("player", 0);
+        const controller = new Controller(model, view, "player");
+        this.controllers.push(controller);
+    }
+    
+
+    clearGames() {
+        this.controllers = [];
+        this.canvasGrid.innerHTML = '';
+        const existingGame = document.querySelector('.main-game-instance');
+        if (existingGame) {
+            existingGame.remove();
+        }
+    }
+
     async runGeneration() {
         this.controllers = [];
-        this.mainCanvas.style.display = 'none';
         this.canvasGrid.innerHTML = '';
 
         // Créer une instance de jeu pour chaque AI
-        for (let i = 1; i < this.darwin.nbrAI + 1; i++) {
-            const gameInstance = this.createGameInstance(i);
+        for (let i = 0; i < this.darwin.nbrAI; i++) {
+            const gameInstance = this.createAIInstance(i);
             this.canvasGrid.appendChild(gameInstance);
             
             const model = new Model("ai");
@@ -82,9 +155,32 @@ class BoardController {
         });
     }
 
+    async aiGame() {
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(() => {
+            this.updateChart();
+        });
+        
+        const layerNeural = [6, 4, 3];
+        
+        for (let generation = 0; generation < this.darwin.generation; generation++) {            
+            // Créer la population initiale si c'est la première génération
+            if (generation === 0) {
+                this.darwin.population = Array(this.darwin.nbrAI).fill(null).map(() => new AI(layerNeural));
+            }
+            
+            await this.runGeneration();
+            console.log('apres le run ');
+            // Faire évoluer la population pour la prochaine génération
+            if (generation < this.darwin.generation - 1) {
+                this.darwin.evolve(layerNeural);
+            }
+            this.updateChart();
+        }
+    }
+
     playerGame() {
         let gameType = "player";
-        this.mainCanvas.style.display = 'block';
         this.canvasGrid.innerHTML = '';
         const app = new Controller(new Model(gameType), new View(gameType, 0), gameType);
         this.controllers.push(app);
@@ -173,8 +269,9 @@ class Controller {
         this._lag += deltaTime;
         this._startTime = currentTime;
 
-        while (this._lag >= this._frameDuration) {
-            this._model.Move(this._fps, this._view._canvas);
+        let isRunning = true;
+        while (this._lag >= this._frameDuration && isRunning) {
+            isRunning = this._model.Move(this._fps, this._view._canvas);
             this._lag -= this._frameDuration;
         }
 
