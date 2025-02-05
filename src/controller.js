@@ -2,7 +2,7 @@ class BoardController {
     constructor() {
         this.canvasGrid = document.getElementById('canvas-grid');
         this.controllers = [];
-        this.darwin = new Darwin(30, 100);
+        this.darwin = new Darwin(100, 50000);
         this.chart = null;
     }
 
@@ -109,10 +109,10 @@ class BoardController {
         google.charts.setOnLoadCallback(() => {
             this.updateChart();
         });
-
-        const layerNeural = [6, 4, 3];
-
-        for (let generation = 0; generation < this.darwin.generation; generation++) {
+        
+        const layerNeural = [6,12,15,8,3];
+        
+        for (let generation = 0; generation < this.darwin.generation; generation++) {            
             if (generation === 0) {
                 this.darwin.population = Array(this.darwin.nbrAI).fill(null).map(() => new AI(layerNeural));
             }
@@ -184,6 +184,38 @@ class BoardController {
                 }
             }, 100);
         });
+    }
+
+    async aiGame() {
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(() => {
+            this.updateChart();
+        });
+        
+        const layerNeural = [6,12,15,8,3];
+        
+        for (let generation = 0; generation < this.darwin.generation; generation++) {            
+            // Créer la population initiale si c'est la première génération
+            if (generation === 0) {
+                this.darwin.population = Array(this.darwin.nbrAI).fill(null).map(() => new AI(layerNeural));
+            }
+            
+            await this.runGeneration();
+
+            // Faire évoluer la population pour la prochaine génération
+            if (generation < this.darwin.generation - 1) {
+                this.darwin.evolve(layerNeural);
+            }
+            this.updateChart();
+        }
+    }
+
+    playerGame() {
+        let gameType = "player";
+        this.canvasGrid.innerHTML = '';
+        const app = new Controller(new Model(gameType), new View(gameType, 0), gameType);
+        this.controllers.push(app);
+        app.Update();
     }
 
     updateChart() {

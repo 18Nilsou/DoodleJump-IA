@@ -9,54 +9,83 @@ class Darwin{
     }
 
     evolve(layerNeural) {
-
-        // Sort population once and reuse it
-        const sortedPopulation = [...this.population].sort((a, b) => b.score - a.score);  // Changed to descending order
-        
-        // Update statistics
+        // Trier la population en fonction du score (ordre décroissant)
+        const sortedPopulation = [...this.population].sort((a, b) => b.score - a.score);
+    
+        // Mettre à jour les statistiques
         this.bestScore.push(sortedPopulation[0].score);
         this.averageScore.push(this.population.reduce((acc, ai) => acc + ai.score, 0) / this.nbrAI);
     
-        // Select parents - top 10% (8 out of 55)
-        let bestParents = sortedPopulation.slice(0, this.nbrAI/10);
-        // Select random AIs from top 50% (positions 8-26)
-        let randomParents = sortedPopulation.slice(0, this.nbrAI/2);
-        
+        // Initialiser les probabilités en fonction du rang (Rank Selection)
+        let probabilities = sortedPopulation.map((_, index) => (this.nbrAI - index) / ((this.nbrAI * (this.nbrAI + 1)) / 2));
+    
+        // Fonction pour normaliser les probabilités pour que la somme soit égale à 1
+        function normalizeProbabilities(probabilities) {
+            const sum = probabilities.reduce((acc, p) => acc + p, 0);
+            return probabilities.map(p => p / sum);
+        }
+    
         let newPopulation = [];
     
         while (newPopulation.length < this.nbrAI) {
-            // Select two random parents
-            const parent1 = bestParents[Math.floor(Math.random() * bestParents.length)];
-            const parent2 = randomParents[Math.floor(Math.random() * randomParents.length)];
+            // Sélection des parents avec une roulette pondérée par le rang
+            const parent1Index = this.rouletteSelection(probabilities);
+            const parent1 = sortedPopulation[parent1Index];
+    
+            const parent2Index = this.rouletteSelection(probabilities);
+            const parent2 = sortedPopulation[parent2Index];
+    
+            // Réduction de la probabilité des parents sélectionnés
+            probabilities[parent1Index] /= 2;
+            probabilities[parent2Index] /= 2;
+    
+            // Re-normalisation des probabilités
+            probabilities = normalizeProbabilities(probabilities);
+    
             let child = new AI(layerNeural);
             const totalScore = parent1.score + parent2.score;
+    
             if (totalScore === 0) continue;
-            for (let i = 0; i < parent1.layerNeural.length-1; ++i) {
-                // Create child's neural network
-                for (let k = 0; k < child.matrix.length; k++) {
-                    for (let z = 0; z < child.matrix[k].length; z++) {
-                        // Weighted average of parent values
+    
+            for (let i = 0; i < parent1.layerNeural.length - 1; ++i) {
+                for (let k = 0; k < child.matrix.length - 1; ++k) {
+                    for (let z = 0; z < child.matrix[k].length; ++z) {
+                        
+                        // Moyenne pondérée des parents
                         child.matrix[i][k][z] = (
                             parent1.matrix[i][k][z] * parent1.score + 
                             parent2.matrix[i][k][z] * parent2.score
                         ) / totalScore;
     
-                        // Apply mutation with 10% chance
+                        // Mutation avec 20% de chance
                         if (Math.random() < 0.2) {
-                            // Changed mutation to be more controlled:
-                            // Random value between -0.2 and 0.2
                             const mutation = (Math.random() * 0.6) - 0.3;
                             child.matrix[i][k][z] *= mutation;
                         }
                     }
                 }
             }
-            newPopulation.push(child);   
+            newPopulation.push(child);
         }
     
-        // Update population with new generation
+        // Mise à jour de la population avec la nouvelle génération
         this.population = newPopulation;
     }
+    
+    // Méthode pour la sélection par roulette
+    rouletteSelection(probabilities) {
+        let r = Math.random();
+        let cumulative = 0.0;
+        
+        for (let i = 0; i < probabilities.length; i++) {
+            cumulative += probabilities[i];
+            if (r <= cumulative) {
+                return i;
+            }
+        }
+        return probabilities.length - 1; // Sécurité, au cas où
+    }
+    
 
 }
 
